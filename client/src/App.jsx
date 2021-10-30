@@ -1,22 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import Card from './components/card/Card';
 import Navbar from './components/navbar/Navbar';
 import { posts } from './data'
+import { io } from 'socket.io-client'
 
 const App = () => {
   const [username, setUsername] = useState('')
   const [user, setUser] = useState('')
+  const [socket, setSocket] = useState(null)
 
-  console.log(user)
+  useEffect(() => {
+    setSocket(io("http://localhost:5800"))
+  }, [])
+
+  // console.log(socket)
+
+  useEffect(() => {
+    socket?.emit('join', user)
+  }, [socket, user])
 
   return (
     <div className="container">
       {user ? (
         <>
-          <Navbar />
+          <Navbar socket={socket} />
           {posts.map(post => (
-            <Card key={post._id} post={post}/>
+            <Card key={post._id} post={post} socket={socket} user={user}/>
           ))}
           <span className="username">{user}</span>
         </>
